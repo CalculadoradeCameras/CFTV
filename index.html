@@ -36,11 +36,74 @@
             border: none;
             cursor: pointer;
         }
+        .login-container {
+            margin-top: 20%;
+        }
     </style>
-</head>
+</head> <script type="module">
+    // Importar Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, collection, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  
+    // Configuração do Firebase
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_PROJETO.firebaseapp.com",
+      projectId: "SEU_PROJETO",
+      storageBucket: "SEU_PROJETO.appspot.com",
+      messagingSenderId: "SEU_SENDER_ID",
+      appId: "SEU_APP_ID"
+    };
+  
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getFirestore(app);
+  
+    // Função de Login
+    window.verificarLogin = function() {
+      let email = document.getElementById('email').value;
+      let password = document.getElementById('password').value;
+  
+      signInWithEmailAndPassword(auth, email, password)
+        .then(async (userCredential) => {
+          const user = userCredential.user;
+          const userRef = doc(db, "usuariosAprovados", user.uid);
+          const userSnap = await getDoc(userRef);
+  
+          if (userSnap.exists()) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('calculadoraScreen').style.display = 'block';
+          } else {
+            document.getElementById('loginMessage').innerText = "Acesso não autorizado. Aguarde aprovação.";
+          }
+        })
+        .catch((error) => {
+          document.getElementById('loginMessage').innerText = "Erro ao fazer login.";
+        });
+    };
+  
+    // Monitorar autenticação
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('calculadoraScreen').style.display = 'block';
+      }
+    });
+  
+  </script>  
 <body>
-    <h1>Calculadora de Câmeras</h1>
-    <div class="container">
+    <div id="loginScreen" class="login-container">
+        <h1>Login</h1>
+        <input type="email" id="email" placeholder="Email"><br><br>
+        <input type="password" id="password" placeholder="Senha"><br><br>
+        <button onclick="verificarLogin()">Entrar</button>
+        <p id="loginMessage"></p>
+    </div>
+    
+    <div id="calculadoraScreen" class="container" style="display: none;">
+        <h1>Calculadora de Câmeras</h1>
         <table>
             <tr>
                 <th>Descrição</th>
@@ -77,6 +140,18 @@
     </div>
 
     <script>
+        function verificarLogin() {
+            let email = document.getElementById('email').value;
+            let password = document.getElementById('password').value;
+            
+            if (email === "admin@example.com" && password === "1234") {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('calculadoraScreen').style.display = 'block';
+            } else {
+                document.getElementById('loginMessage').innerText = "Email ou senha incorretos.";
+            }
+        }
+        
         function calcularCameras() {
             let area = parseFloat(document.getElementById('area').value);
             let angulo = parseFloat(document.getElementById('angulo').value);

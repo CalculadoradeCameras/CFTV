@@ -40,60 +40,9 @@
             margin-top: 20%;
         }
     </style>
-</head> <script type="module">
-    // Importar Firebase
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-  
-    // Configuração do Firebase
-    const firebaseConfig = {
-      apiKey: "SUA_API_KEY",
-      authDomain: "SEU_PROJETO.firebaseapp.com",
-      projectId: "SEU_PROJETO",
-      storageBucket: "SEU_PROJETO.appspot.com",
-      messagingSenderId: "SEU_SENDER_ID",
-      appId: "SEU_APP_ID"
-    };
-  
-    // Inicializar Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth();
-    const db = getFirestore(app);
-  
-    // Função de Login
-    window.verificarLogin = function() {
-      let email = document.getElementById('email').value;
-      let password = document.getElementById('password').value;
-  
-      signInWithEmailAndPassword(auth, email, password)
-        .then(async (userCredential) => {
-          const user = userCredential.user;
-          const userRef = doc(db, "usuariosAprovados", user.uid);
-          const userSnap = await getDoc(userRef);
-  
-          if (userSnap.exists()) {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('calculadoraScreen').style.display = 'block';
-          } else {
-            document.getElementById('loginMessage').innerText = "Acesso não autorizado. Aguarde aprovação.";
-          }
-        })
-        .catch((error) => {
-          document.getElementById('loginMessage').innerText = "Erro ao fazer login.";
-        });
-    };
-  
-    // Monitorar autenticação
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('calculadoraScreen').style.display = 'block';
-      }
-    });
-  
-  </script>  
+</head>
 <body>
+    <!-- Tela de Login -->
     <div id="loginScreen" class="login-container">
         <h1>Login</h1>
         <input type="email" id="email" placeholder="Email"><br><br>
@@ -102,6 +51,7 @@
         <p id="loginMessage"></p>
     </div>
     
+    <!-- Tela da Calculadora -->
     <div id="calculadoraScreen" class="container" style="display: none;">
         <h1>Calculadora de Câmeras</h1>
         <table>
@@ -139,20 +89,43 @@
         <p id="resultado"></p>
     </div>
 
-    <script>
-        function verificarLogin() {
+    <!-- Firebase + Lógica de Login + Cálculo -->
+    <script type="module">
+        // Importando Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // 🔥 Configuração do Firebase (SEU CÓDIGO)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAtcu7ql5-vp2x9CWRxtVqDYYFs1xzKMxA",
+            authDomain: "cameras-bae4b.firebaseapp.com",
+            projectId: "cameras-bae4b",
+            storageBucket: "cameras-bae4b.firebasestorage.app",
+            messagingSenderId: "145502164161",
+            appId: "1:145502164161:web:1b8cb1defbb401369db040"
+        };
+
+        // Inicializa o Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+
+        // Função para login
+        window.verificarLogin = function() {
             let email = document.getElementById('email').value;
             let password = document.getElementById('password').value;
-            
-            if (email === "admin@example.com" && password === "1234") {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('calculadoraScreen').style.display = 'block';
-            } else {
-                document.getElementById('loginMessage').innerText = "Email ou senha incorretos.";
-            }
-        }
-        
-        function calcularCameras() {
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then(() => {
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('calculadoraScreen').style.display = 'block';
+                })
+                .catch(() => {
+                    document.getElementById('loginMessage').innerText = "Email ou senha incorretos.";
+                });
+        };
+
+        // Função para calcular câmeras
+        window.calcularCameras = function() {
             let area = parseFloat(document.getElementById('area').value);
             let angulo = parseFloat(document.getElementById('angulo').value);
             let alcance = parseFloat(document.getElementById('alcance').value);
@@ -167,7 +140,7 @@
             } else {
                 document.getElementById('resultado').innerText = 'Por favor, insira valores válidos.';
             }
-        }
+        };
     </script>
 </body>
 </html>
